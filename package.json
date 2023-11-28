@@ -1,0 +1,11 @@
+{
+  "name": "algorithm-assigments-monorepo",
+  "descriptions": "bth004 assignments implements",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "chalk": "^5.3.0"
+  }
+}
