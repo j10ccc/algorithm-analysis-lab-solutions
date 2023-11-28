@@ -2,10 +2,14 @@
   "name": "algorithm-assigments-monorepo",
   "descriptions": "bth004 assignments implements",
   "private": true,
+  "scripts": {
+    "greedy": "bun index.ts --algorithm greedy"
+  },
   "workspaces": [
     "packages/*"
   ],
   "dependencies": {
-    "chalk": "^5.3.0"
+    "chalk": "^5.3.0",
+    "assignment1-solutions": "workspace:*"
   }
 }
