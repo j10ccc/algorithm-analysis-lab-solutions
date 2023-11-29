@@ -3,7 +3,8 @@
   "descriptions": "bth004 assignments implements",
   "private": true,
   "scripts": {
-    "greedy": "bun index.ts --algorithm greedy"
+    "greedy": "bun index.ts --algorithm greedy",
+    "bubble": "bun index.ts --algorithm bubble"
   },
   "workspaces": [
     "packages/*"
@@ -11,5 +12,13 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "assignment1-solutions": "workspace:*"
+  },
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }

@@ -1,9 +1,11 @@
 import chalk from "chalk";
 import Assignment1Solution from "assignment1-solutions";
+import Assignment2Solution from "assignment2-solutions";
 import fs from "fs";
 
 const ALGORITHMS = {
-  ...Assignment1Solution
+  ...Assignment1Solution,
+  ...Assignment2Solution
 }
 
 const algorithm = process.argv[process.argv.indexOf("--algorithm") + 1] as keyof typeof ALGORITHMS;
