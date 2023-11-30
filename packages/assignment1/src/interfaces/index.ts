@@ -5,7 +5,8 @@ export interface Thing {
 }
 
 export interface Knapsack {
-  capacity: number;
+  readonly capacity: number;
+  cost?: number;
 }
 
 export interface IInput {
