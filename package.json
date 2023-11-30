@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "greedy": "bun index.ts --algorithm greedy",
-    "bubble": "bun index.ts --algorithm bubble"
+    "bubble": "bun index.ts --algorithm bubble",
+    "merge": "bun index.ts --algorithm merge"
   },
   "workspaces": [
     "packages/*"
