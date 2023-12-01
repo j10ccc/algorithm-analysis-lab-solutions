@@ -1,9 +1,11 @@
 {
-  "name": "algorithm-assigments-monorepo",
+  "name": "algorithm-assignments-monorepo",
   "descriptions": "bth004 assignments implements",
   "private": true,
   "scripts": {
     "greedy": "bun index.ts --algorithm greedy",
+    "neighbor": "bun index.ts --algorithm neighborSearch",
+    "tabu": "bun index.ts --algorithm tabuSearch",
     "bubble": "bun index.ts --algorithm bubble",
     "merge": "bun index.ts --algorithm merge"
   },

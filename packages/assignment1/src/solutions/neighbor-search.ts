@@ -65,22 +65,30 @@ export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Ar
   return neighborhood;
 }
 
+export function findBestNeighbor(neighborhood: Array<Thing[]>) {
+  let bestNeighbor: Thing[] | null = null;
+  let value = -1;
+  for (const neighbor of neighborhood) {
+    const tmp = neighbor.reduce((sum, thing) => sum + (thing.knapsack ? thing.value : 0), 0);
+    if (tmp > value) {
+      value = tmp;
+      bestNeighbor = neighbor;
+    }
+  }
+  return {
+    bestNeighbor,
+    value
+  }
+}
+
 export default function neighborSearch(data: IInput) {
   const { things, value: greedyValue } = greedy(data);
-  let bestNeighbor = things;
+  let bestSolution = things;
   let bestValue = greedyValue;
 
   while (true) {
-    let neighborhood = generateNeighborhood(bestNeighbor, data.knapsacks);
-
-    let value = 0;
-    for (const neighbor of neighborhood) {
-      const tmp = neighbor.reduce((sum, thing) => sum + (thing.knapsack ? thing.value : 0), 0);
-      if (tmp > value) {
-        value = tmp;
-        bestNeighbor = neighbor;
-      }
-    }
+    let neighborhood = generateNeighborhood(bestSolution, data.knapsacks);
+    const { value } = findBestNeighbor(neighborhood);
 
     if (value > bestValue) {
       bestValue = value;
@@ -91,6 +99,6 @@ export default function neighborSearch(data: IInput) {
 
   return {
     value: bestValue,
-    things: bestNeighbor
+    things: bestSolution
   }
 }
