@@ -1,5 +1,11 @@
 import { Knapsack, Thing, IInput } from "../interfaces";
 
+/**
+ * Greedy algorithm all implementation.
+ * 
+ * @param data Input data
+ * @returns value and solution consisted with things with knapsack reference.
+ */
 export default function greedy(data: IInput) {
   const knapsacks: Knapsack[] = data.knapsacks;
   const things: Thing[] = data.things;

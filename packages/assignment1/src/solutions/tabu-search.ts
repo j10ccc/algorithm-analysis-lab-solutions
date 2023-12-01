@@ -5,6 +5,18 @@ import { IInput, Thing } from "../interfaces";
 const IterateBound = 1000;
 const TabuListLengthBound = 100;
 
+/**
+ * Tabu search entry function.
+ * 
+ * Store best solution from rounds of generated neighborhood, and record
+ * the best in every round. Stop when there is no best solution available
+ * or iterate limit runs out.
+ * 
+ * Start from the `greedy` result
+ * 
+ * @param data Input data
+ * @returns bestValue and bestSolution consisted with things with knapsack reference.
+ */
 export default function tabuSearch(data: IInput) {
   const { things, value: greedyValue } = greedy(data);
   const tabuList: Array<Thing[]> = [];
@@ -34,6 +46,7 @@ export default function tabuSearch(data: IInput) {
       bestSolution = bestNeighbor;
       bestValue = value;
     }
+    // Control tabu list size
     if (tabuList.length > TabuListLengthBound) {
       tabuList.pop();
     }

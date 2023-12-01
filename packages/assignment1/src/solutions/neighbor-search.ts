@@ -1,7 +1,13 @@
-import { OuterExpressionKinds } from "typescript";
 import { Knapsack, Thing, IInput } from "../interfaces";
 import greedy from "./greedy";
 
+/**
+ * Generate neighborhood by sparing space and putting outside item in.
+ * 
+ * @param things Starting solution
+ * @param knapsacks Original knapsacks from input data(with none things)
+ * @returns All possible neighborhood 
+ */
 export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Array<Thing[]> {
   // Solutions for sparing space
   const baseSolutions: Array<Thing[]> = [];
@@ -65,6 +71,12 @@ export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Ar
   return neighborhood;
 }
 
+/**
+ * Find the the neighbor with maximum value in passed neighborhood.
+ * 
+ * @param neighborhood
+ * @returns The best neighbor and the maximum value
+ */
 export function findBestNeighbor(neighborhood: Array<Thing[]>) {
   let bestNeighbor: Thing[] | null = null;
   let value = -1;
@@ -81,6 +93,16 @@ export function findBestNeighbor(neighborhood: Array<Thing[]>) {
   }
 }
 
+/**
+ * Neighbor search entry function.
+ * 
+ * Keeping finding better value from generated solutions until no one better.
+ *
+ * Start from the `greedy` result.
+ *
+ * @param data Input data
+ * @returns bestValue and bestSolution consisted with things with knapsack reference.
+ */
 export default function neighborSearch(data: IInput) {
   const { things, value: greedyValue } = greedy(data);
   let bestSolution = things;
