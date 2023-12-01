@@ -173,3 +173,11 @@ dist
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Input cases sample
+input/
+!input/case_1.json
+!input/case_2.json
+
+# VSCode
+.vscode/
