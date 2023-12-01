@@ -4,6 +4,9 @@ export default function greedy(data: IInput) {
   const knapsacks: Knapsack[] = data.knapsacks;
   const things: Thing[] = data.things;
 
+  data.knapsacks.forEach((item, index) => item.index = index);
+  data.things.forEach((item, index) => item.index = index);
+
   things.sort((a, b) => {
     return - a.value / a.weight + b.value / b.weight
   })
