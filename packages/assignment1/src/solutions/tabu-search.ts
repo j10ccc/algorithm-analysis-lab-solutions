@@ -25,14 +25,20 @@ export default function tabuSearch(data: IInput) {
   let bestSolution = things;
 
   let iterateCount = 0;
-  while(iterateCount++ < IterateBound) {
-    const neighborhood = generateNeighborhood(startingSolution, data.knapsacks);
+  while (iterateCount++ < IterateBound) {
+    const knapsacks = data.knapsacks.map((knapsack, index) => {
+      const cost = startingSolution.filter(thing => thing.knapsack?.index === index)
+      .reduce((prev, curr) =>  curr.weight + prev, 0);
+      return { ...knapsack, cost, index };
+    });
+
+    const neighborhood = generateNeighborhood(startingSolution, knapsacks);
     const outsideTabuNeighborhood = neighborhood.filter(neighbor => {
       const exitedNeighbor = tabuList.find(neighborInTabu => {
         if (neighbor.length !== neighborInTabu?.length) throw new Error("Invalid neighbor");
         let i = 0;
         for (i = 0; i < neighbor.length; i++) {
-          if (neighbor[i].knapsack?.index !== neighborInTabu[i].knapsack) {
+          if (neighbor[i].knapsack?.index !== neighborInTabu[i].knapsack?.index) {
             break;
           }
         }

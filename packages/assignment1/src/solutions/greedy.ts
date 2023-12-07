@@ -7,11 +7,8 @@ import { Knapsack, Thing, IInput } from "../interfaces";
  * @returns value and solution consisted with things with knapsack reference.
  */
 export default function greedy(data: IInput) {
-  const knapsacks: Knapsack[] = data.knapsacks;
-  const things: Thing[] = data.things;
-
-  data.knapsacks.forEach((item, index) => item.index = index);
-  data.things.forEach((item, index) => item.index = index);
+  const knapsacks: Knapsack[] = data.knapsacks.map((item, index) => ({ ...item, index, cost: 0}));
+  const things: Thing[] = data.things.map((item, index) => ({ ...item, index }));
 
   things.sort((a, b) => {
     return - a.value / a.weight + b.value / b.weight
@@ -32,7 +29,7 @@ export default function greedy(data: IInput) {
 
   return {
     value: sum,
-    things,
+    things
   }
 }
 

@@ -14,40 +14,36 @@ export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Ar
   // Neighborhood for moving outside item to spared space
   const neighborhood: Array<Thing[]> = [];
 
-  // Put things into knapsacks
-  const knapsackThingsMap = new Map<Knapsack, Thing[]>();
-  things.forEach(thing => {
-    if (thing.knapsack) {
-      if (knapsackThingsMap.get(thing.knapsack) === undefined)
-        knapsackThingsMap.set(thing.knapsack, []);
-      knapsackThingsMap.get(thing.knapsack)?.push(thing);
-    }
-  })
-
   // Step 1 Try spare some space for outside items, and generate baseSolutions
   for (let i = 0; i < things.length; i++) {
     const thingToMove = things[i];
+    if (!thingToMove.knapsack) continue;
 
-    // Method A Try to move `thingToMove` from one knapsack to another
     knapsacks.forEach(knapsack => {
-      if (knapsack.capacity > thingToMove.weight && thingToMove.knapsack !== knapsack) {
+      if (knapsack.capacity - knapsack.cost! >= thingToMove.weight && thingToMove.knapsack?.index !== knapsack.index) {
+        // Method A Try to move `thingToMove` from one knapsack to another
         const solution = things.map(thing => ({ ...thing }));
         solution[i].knapsack = knapsack;
         baseSolutions.push(solution);
+      } else if (thingToMove.knapsack?.index !== knapsack.index) {
+        // Method B Try to remove something for **moving in** `thingToMove`
+        things
+          .filter(thing => thing.knapsack?.index === knapsack.index)
+          .forEach(thingToRemove => {
+            if (thingToRemove.index !== thingToMove.index && knapsack.capacity - knapsack.cost! + thingToRemove.weight >= thingToMove.weight) {
+              const solution = things.map(thing => { 
+                if (thing === thingToMove) 
+                  return { ...thing, knapsack };
+                else if (thing === thingToRemove)
+                  return { ...thing, knapsack: undefined };
+                else
+                  return { ...thing };
+              });
+              baseSolutions.push(solution);
+            }
+          })
       }
     });
-
-    // Method B Try to remove something for **moving in** `thingToMove`
-    for (const [knapsack, thingsInKnapsack] of knapsackThingsMap.entries()) {
-      thingsInKnapsack.forEach((thingToRemove, index) => {
-        if (thingToRemove !== thingToMove && knapsack.capacity + thingToRemove.weight > thingToMove.weight) {
-          const solution = things.map(thing => ({ ...thing }));
-          solution[i].knapsack = thingToMove.knapsack;
-          solution[index].knapsack = undefined;
-          baseSolutions.push(solution);
-        }
-      })
-    }
   }
 
   // Step 2 Move outside item in, and generate neighborhood
@@ -55,10 +51,10 @@ export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Ar
   baseSolutions.forEach(solution => {
     for (const knapsack of knapsacks) {
       const rest = knapsack.capacity - solution.reduce(
-        (sum, thing) => sum + (thing.knapsack !== knapsack ? 0 : thing.weight)
+        (sum, thing) => sum + (thing.knapsack?.index !== knapsack.index ? 0 : thing.weight)
         , 0)
       outsideThings.forEach(thing => {
-        if (thing.weight < rest) {
+        if (thing.weight <= rest) {
           const neighbor = solution.map(thing => ({ ...thing }));
           const thingToAdd = neighbor.find(thingInNeighbor => thingInNeighbor.index === thing.index)
           thingToAdd && (thingToAdd.knapsack = knapsack);
@@ -109,11 +105,18 @@ export default function neighborSearch(data: IInput) {
   let bestValue = greedyValue;
 
   while (true) {
-    let neighborhood = generateNeighborhood(bestSolution, data.knapsacks);
-    const { value } = findBestNeighbor(neighborhood);
+    const knapsacks = data.knapsacks.map((knapsack, index) => {
+      const cost = bestSolution.filter(thing => thing.knapsack?.index === index)
+      .reduce((prev, curr) =>  curr.weight + prev, 0);
+      return { ...knapsack, cost, index };
+    });
 
-    if (value > bestValue) {
+    let neighborhood = generateNeighborhood(bestSolution, knapsacks);
+    const { value, bestNeighbor } = findBestNeighbor(neighborhood);
+
+    if (value > bestValue && bestNeighbor) {
       bestValue = value;
+      bestSolution = bestNeighbor;
     } else {
       break;
     }
