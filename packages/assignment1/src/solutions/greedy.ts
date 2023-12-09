@@ -16,7 +16,7 @@ export default function greedy(data: IInput) {
 
   things.forEach((thing) => {
     let selectKnapsack = knapsacks.find(knapsack => {
-      return (knapsack.capacity - (knapsack.cost || 0)) > thing.weight;
+      return (knapsack.capacity - (knapsack.cost || 0)) >= thing.weight;
     });
     if (selectKnapsack) {
       if (selectKnapsack.cost === undefined) selectKnapsack.cost = 0;

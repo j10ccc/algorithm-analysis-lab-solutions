@@ -28,7 +28,7 @@ export default function tabuSearch(data: IInput) {
   while (iterateCount++ < IterateBound) {
     const knapsacks = data.knapsacks.map((knapsack, index) => {
       const cost = startingSolution.filter(thing => thing.knapsack?.index === index)
-      .reduce((prev, curr) =>  curr.weight + prev, 0);
+        .reduce((prev, curr) => curr.weight + prev, 0);
       return { ...knapsack, cost, index };
     });
 
@@ -48,7 +48,7 @@ export default function tabuSearch(data: IInput) {
     })
     const { bestNeighbor, value } = findBestNeighbor(outsideTabuNeighborhood);
     if (!bestNeighbor) break;
-    if (value > bestValue) {
+    if (value >= bestValue) {
       bestSolution = bestNeighbor;
       bestValue = value;
     }
