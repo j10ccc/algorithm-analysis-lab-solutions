@@ -9,12 +9,14 @@ import greedy from "./greedy";
  * @returns All possible neighborhood 
  */
 export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Array<Thing[]> {
-  // Solutions for sparing space
-  const baseSolutions: Array<Thing[]> = [];
   // Neighborhood for moving outside item to spared space
   const neighborhood: Array<Thing[]> = [];
+  const outsideThings = things.filter(thing => thing.knapsack === undefined);
 
-  // Step 1 Try spare some space for outside items, and generate baseSolutions
+  // Definition 1
+  // Try spare some space for outside items, and generate baseSolutions
+  // Solutions for sparing space
+  const baseSolutions: Array<Thing[]> = [];
   for (let i = 0; i < things.length; i++) {
     const thingToMove = things[i];
     if (!thingToMove.knapsack) continue;
@@ -31,10 +33,10 @@ export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Ar
           .filter(thing => thing.knapsack?.index === knapsack.index)
           .forEach(thingToRemove => {
             if (thingToRemove.index !== thingToMove.index && knapsack.capacity - knapsack.cost! + thingToRemove.weight >= thingToMove.weight) {
-              const solution = things.map(thing => { 
-                if (thing === thingToMove) 
+              const solution = things.map(thing => {
+                if (thing.index === thingToMove.index)
                   return { ...thing, knapsack };
-                else if (thing === thingToRemove)
+                else if (thing.index === thingToRemove.index)
                   return { ...thing, knapsack: undefined };
                 else
                   return { ...thing };
@@ -46,8 +48,9 @@ export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Ar
     });
   }
 
-  // Step 2 Move outside item in, and generate neighborhood
-  const outsideThings = things.filter(thing => thing.knapsack === undefined);
+  checkOverload(baseSolutions, knapsacks);
+
+  // Move outside item in, and generate neighborhood
   baseSolutions.forEach(solution => {
     for (const knapsack of knapsacks) {
       const rest = knapsack.capacity - solution.reduce(
@@ -64,7 +67,59 @@ export function generateNeighborhood(things: Thing[], knapsacks: Knapsack[]): Ar
     }
   })
 
+  checkOverload(baseSolutions, knapsacks);
+
+  // Definition 2
+  // Directly move outside item in without any pre-actions
+  outsideThings.forEach(outsideThing => {
+    knapsacks.forEach(knapsack => {
+      if (knapsack.capacity - knapsack.cost! >= outsideThing.weight) {
+        const neighbor = things.map(thing => {
+          if (thing.index === outsideThing.index)
+            return { ...thing, knapsack: knapsack };
+          else
+            return { ...thing };
+        });
+        neighborhood.push(neighbor);
+      }
+    })
+  })
+
+  checkOverload(neighborhood, knapsacks);
+
+  // Definition 3
+  // Replace item in knapsack with things outside 
+  outsideThings.forEach(outsideThing => {
+    const innerThings = things.filter(item => item.knapsack?.index !== undefined);
+    innerThings.forEach(innerThing => {
+      const knapsack = knapsacks[innerThing.knapsack!.index];
+      if (knapsack.capacity - knapsack.cost! + innerThing.weight >= outsideThing.weight) {
+        const neighbor = things.map(thing => {
+          if (thing.index === outsideThing.index) return { ...thing, knapsack }
+          else if (thing.index === innerThing.index) return { ...thing, knapsack: undefined }
+          else return { ...thing }
+        })
+        neighborhood.push(neighbor);
+      }
+    })
+  })
+
+  checkOverload(neighborhood, knapsacks);
+
   return neighborhood;
+}
+
+function checkOverload(neighborhood: Thing[][], knapsacks: Knapsack[]) {
+  neighborhood.forEach(solution => {
+    knapsacks.forEach(knapsack => {
+      const total = solution.filter(thing => thing.knapsack?.index === knapsack.index)
+        .reduce((prev, curr) => curr.weight + prev, 0);
+      if (total > knapsack.capacity) {
+        console.log(total)
+        throw new Error("Overload");
+      }
+    })
+  })
 }
 
 /**
@@ -107,14 +162,14 @@ export default function neighborSearch(data: IInput) {
   while (true) {
     const knapsacks = data.knapsacks.map((knapsack, index) => {
       const cost = bestSolution.filter(thing => thing.knapsack?.index === index)
-      .reduce((prev, curr) =>  curr.weight + prev, 0);
+        .reduce((prev, curr) => curr.weight + prev, 0);
       return { ...knapsack, cost, index };
     });
 
     let neighborhood = generateNeighborhood(bestSolution, knapsacks);
     const { value, bestNeighbor } = findBestNeighbor(neighborhood);
 
-    if (value > bestValue && bestNeighbor) {
+    if (value >= bestValue && bestNeighbor) {
       bestValue = value;
       bestSolution = bestNeighbor;
     } else {
